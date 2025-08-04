@@ -55,7 +55,7 @@ int main(int argc, const char* const argv[]) {
 	cli
 		.add_argument("-o", "--output")
 		.metavar("PATH")
-		.help("The path to the output file (if the current mode outputs a file). Ignored if the input path is a directory.")
+		.help("The parent directory of the generated xlsppatch directory.")
 		.store_into(output);
 
 	cli.add_epilog("Program details:\n\n"
@@ -70,6 +70,8 @@ int main(int argc, const char* const argv[]) {
 		std::filesystem::path outputPath = output;
 		if (output.empty()) {
 			outputPath = "xlsppatch";
+		} else {
+			outputPath /= "xlsppatch";
 		}
 		if (std::filesystem::exists(outputPath)) {
 			std::filesystem::remove_all(outputPath);
