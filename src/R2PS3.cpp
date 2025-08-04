@@ -7,11 +7,6 @@
 #include <string_view>
 #include <vector>
 
-#ifdef _WIN32
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-#endif
-
 #include <argparse/argparse.hpp>
 #include <sourcepp/FS.h>
 #include <steampp/steampp.h>
@@ -19,6 +14,11 @@
 
 #include "Config.h"
 #include "MainMenu.h"
+
+#ifdef _WIN32
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#endif
 
 
 namespace {
