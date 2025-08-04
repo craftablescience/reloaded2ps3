@@ -212,7 +212,8 @@ int main(int argc, const char* const argv[]) {
 		STARTUPINFOW si{};
 		si.cb = sizeof(si);
 		PROCESS_INFORMATION pi{};
-		if (CreateProcessA("..\\bin\\makegamedata.exe", std::format("-r -z ..\\..\\zip0.ps3.zip {} -ps3", debugFormat ? "" : "-zipformat").c_str(), nullptr, nullptr, FALSE, 0, nullptr, (outputPath / "portalreloaded").string().c_str(), &si, &pi)) {
+		auto args = std::format("-r -z ..\\..\\zip0.ps3.zip {} -ps3", debugFormat ? "" : "-zipformat");
+		if (CreateProcessA("..\\bin\\makegamedata.exe", args.data(), nullptr, nullptr, FALSE, 0, nullptr, (outputPath / "portalreloaded").string().c_str(), &si, &pi)) {
 			WaitForSingleObject(pi.hProcess, INFINITE);
 			CloseHandle(pi.hThread);
 			CloseHandle(pi.hProcess);
