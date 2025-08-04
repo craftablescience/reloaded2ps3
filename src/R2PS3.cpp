@@ -123,8 +123,19 @@ int main(int argc, const char* const argv[]) {
 		std::cout << "Copying game files to output directory..." << std::endl;
 
 		std::filesystem::copy(dinoDDayBase / "bin", outputPath / "bin", std::filesystem::copy_options::update_existing | std::filesystem::copy_options::recursive);
-		std::filesystem::copy(portalReloadedBase / "platform", outputPath / "platform", std::filesystem::copy_options::update_existing | std::filesystem::copy_options::recursive);
 		std::filesystem::copy(portalReloadedBase / "portalreloaded", outputPath / "portalreloaded", std::filesystem::copy_options::update_existing | std::filesystem::copy_options::recursive);
+		if (std::filesystem::exists(outputPath / "portalreloaded" / "SAVE")) {
+			std::filesystem::remove_all(outputPath / "portalreloaded" / "SAVE");
+		}
+		if (std::filesystem::exists(outputPath / "portalreloaded" / "gameinfo.txt")) {
+			std::filesystem::remove(outputPath / "portalreloaded" / "gameinfo.txt");
+		}
+		if (std::filesystem::exists(outputPath / "portalreloaded" / "steam.inf")) {
+			std::filesystem::remove(outputPath / "portalreloaded" / "steam.inf");
+		}
+		if (std::filesystem::exists(outputPath / "portalreloaded" / "workshop_log.txt")) {
+			std::filesystem::remove(outputPath / "portalreloaded" / "workshop_log.txt");
+		}
 
 		// Step 3 - Extract the VPK
 
@@ -191,9 +202,9 @@ int main(int argc, const char* const argv[]) {
 		std::cout << "Making game zip. This will take a while..." << std::endl;
 		std::filesystem::current_path(outputPath / "portalreloaded");
 #ifdef _WIN32
-		ShellExecuteA(nullptr, "open", "..\\bin\\makegamedata.exe", "-r -z ..\\zip0.ps3.zip -ps3", nullptr, SW_SHOWDEFAULT);
+		ShellExecuteA(nullptr, "open", "..\\bin\\makegamedata.exe", "-r -z ..\\..\\zip0.ps3.zip -ps3 -zipformat", nullptr, SW_SHOWDEFAULT);
 #else
-		system("wine ../bin/makegamedata.exe -r -z ../zip0.ps3.zip -ps3");
+		system("wine ../bin/makegamedata.exe -r -z ../../zip0.ps3.zip -ps3 -zipformat");
 #endif
 		std::filesystem::current_path(outputPath / "..");
 		std::cout << std::endl;
@@ -215,8 +226,7 @@ int main(int argc, const char* const argv[]) {
 			}
 		}
 
-		std::cout << "Copying game zip to output directory..." << std::endl;
-		std::filesystem::rename(outputPath / "zip0.ps3.zip", outputPath / ".." / "zip0.ps3.zip");
+		std::cout << "Removing temporary files..." << std::endl;
 		std::filesystem::remove_all(outputPath);
 
 		std::cout << "Complete!" << std::endl;
