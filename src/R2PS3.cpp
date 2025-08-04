@@ -18,15 +18,16 @@
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
+#include <shellapi.h>
 #endif
 
 
 namespace {
 
 void openUrl(std::string_view url) {
-#ifdef _WIN32
+#if defined(_WIN32)
 	ShellExecuteA(nullptr, nullptr, url.data(), nullptr, nullptr, SW_SHOW);
-#elifdef __APPLE__
+#elif defined(__APPLE__)
 	system(std::format("open {}", url).c_str());
 #else
 	system(std::format("xdg-open {}", url).c_str());
@@ -127,13 +128,13 @@ int main(int argc, const char* const argv[]) {
 
 		// Step 3 - Extract the VPK
 
-		const auto vpk = vpkpp::VPK::open(outputPath / "portalreloaded" / "pak01_dir.vpk");
+		const auto vpk = vpkpp::VPK::open((outputPath / "portalreloaded" / "pak01_dir.vpk").string());
 		if (!vpk) {
 			std::cout << "Failed to load portalreloaded VPK!" << std::endl;
 			return EXIT_FAILURE;
 		}
 		std::cout << "Extracting contents of portalreloaded VPK..." << std::endl;
-		if (!vpk->extractAll(outputPath / "portalreloaded", false)) {
+		if (!vpk->extractAll((outputPath / "portalreloaded").string(), false)) {
 			std::cout << "Failed to extract portalreloaded VPK!" << std::endl;
 			return EXIT_FAILURE;
 		}
@@ -141,17 +142,17 @@ int main(int argc, const char* const argv[]) {
 
 		// Step 4 - Pull in some required assets
 
-		const auto vpk2 = vpkpp::VPK::open(portalReloadedBase / "portal2_dlc2" / "pak01_dir.vpk");
+		const auto vpk2 = vpkpp::VPK::open((portalReloadedBase / "portal2_dlc2" / "pak01_dir.vpk").string());
 		if (!vpk2) {
 			std::cout << "Failed to load portal2_dlc2 VPK!" << std::endl;
 			return EXIT_FAILURE;
 		}
 		std::cout << "Extracting specific files from portal2_dlc2 VPK..." << std::endl;
-		if (!vpk2->extractDirectory("models",  outputPath / "portalreloaded" / "models")) {
+		if (!vpk2->extractDirectory("models",  (outputPath / "portalreloaded" / "models").string())) {
 			std::cout << "Failed to extract models directory from portal2_dlc2 VPK!" << std::endl;
 			return EXIT_FAILURE;
 		}
-		if (!vpk2->extractDirectory("materials/tile",  outputPath / "portalreloaded" / "materials" / "tile")) {
+		if (!vpk2->extractDirectory("materials/tile",  (outputPath / "portalreloaded" / "materials" / "tile").string())) {
 			std::cout << "Failed to extract materials/tile directory from portal2_dlc2 VPK!" << std::endl;
 			return EXIT_FAILURE;
 		}
@@ -180,7 +181,7 @@ int main(int argc, const char* const argv[]) {
 		const auto baseModUIFolder = outputPath / "portalreloaded" / "resource" / "ui" / "basemodui";
 		std::filesystem::remove_all(baseModUIFolder);
 		std::filesystem::create_directory(baseModUIFolder);
-		sourcepp::fs::writeFileText(baseModUIFolder / "mainmenu.res", std::string{g_mainmenu_res});
+		sourcepp::fs::writeFileText((baseModUIFolder / "mainmenu.res").string(), std::string{g_mainmenu_res});
 
 		std::cout << "Appending ps3 suffix to startupvids.txt..." << std::endl;
 		std::filesystem::rename(outputPath / "portalreloaded" / "media" / "startupvids.txt", outputPath / "portalreloaded" / "media" / "startupvids.ps3.txt");
