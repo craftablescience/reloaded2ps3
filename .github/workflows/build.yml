@@ -1,0 +1,82 @@
+name: Build
+on:
+  push:
+    branches: [mane]
+  pull_request:
+    branches: [mane]
+  workflow_dispatch:
+    # nothing here
+
+env:
+  BUILD_DIR: '${{github.workspace}}/build'
+
+jobs:
+  build-windows:
+    strategy:
+      matrix:
+        build_type: [Debug, Release]
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: cmd
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Set up MSVC
+        uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Configure CMake
+        run: cmake -G "Ninja" -B "${{env.BUILD_DIR}}" -DCMAKE_BUILD_TYPE=${{matrix.build_type}} -DR2PS3_USE_LTO=ON
+
+      - name: Build Binaries
+        working-directory: '${{env.BUILD_DIR}}'
+        run: |
+          cmake --build . --config ${{matrix.build_type}} -t reloaded2ps3 -- -j%NUMBER_OF_PROCESSORS%
+
+      - name: Upload Standalone
+        uses: actions/upload-artifact@v4
+        with:
+          name: 'Reloaded2PS3-Windows-Standalone-msvc-${{matrix.build_type}}'
+          path: |
+            ${{env.BUILD_DIR}}/LICENSE
+            ${{env.BUILD_DIR}}/reloaded2ps3.exe
+          retention-days: 7
+
+      - name: Upload Standalone PDBs
+        uses: actions/upload-artifact@v4
+        with:
+          name: 'Reloaded2PS3-Windows-PDBs-msvc-${{matrix.build_type}}'
+          path: |
+            ${{env.BUILD_DIR}}/reloaded2ps3.pdb
+          retention-days: 7
+
+  build-linux:
+    strategy:
+      matrix:
+        build_type: [Debug, Release]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Configure CMake
+        run: cmake -G "Ninja" -B "${{env.BUILD_DIR}}" -DCMAKE_C_COMPILER="gcc" -DCMAKE_CXX_COMPILER="g++" -DCMAKE_BUILD_TYPE=${{matrix.build_type}} -DR2PS3_USE_LTO=ON
+
+      - name: Build Binaries
+        working-directory: '${{env.BUILD_DIR}}'
+        run: |
+          cmake --build . --config ${{matrix.build_type}} -t reloaded2ps3 -- -j$(nproc)
+
+      - name: Upload Standalone
+        uses: actions/upload-artifact@v4
+        with:
+          name: 'Reloaded2PS3-Linux-Standalone-gcc-${{matrix.build_type}}'
+          path: |
+            ${{env.BUILD_DIR}}/LICENSE
+            ${{env.BUILD_DIR}}/reloaded2ps3
+          retention-days: 7
