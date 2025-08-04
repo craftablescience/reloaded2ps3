@@ -1,9 +1,9 @@
 name: Build
 on:
   push:
-    branches: [mane]
+    branches: [main]
   pull_request:
-    branches: [mane]
+    branches: [main]
   workflow_dispatch:
     # nothing here
 
