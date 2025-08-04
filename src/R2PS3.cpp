@@ -208,13 +208,18 @@ int main(int argc, const char* const argv[]) {
 
 		std::cout << "Making game zip. This will take a while..." << std::endl;
 		std::filesystem::current_path(outputPath / "portalreloaded");
-		std::string wrapper;
-#ifndef _WIN32
-		wrapper = "wine";
+#ifdef _WIN32
+		STARTUPINFOW si{};
+		si.cb = sizeof(si);
+		PROCESS_INFORMATION pi{};
+		if (CreateProcessA("..\\bin\\makegamedata.exe", std::format("-r -z ..\\..\\zip0.ps3.zip {} -ps3", debugFormat ? "" : "-zipformat").c_str(), nullptr, nullptr, FALSE, 0, nullptr, (outputPath / "portalreloaded").string().c_str(), &si, &pi)) {
+			WaitForSingleObject(pi.hProcess, INFINITE);
+			CloseHandle(pi.hThread);
+			CloseHandle(pi.hProcess);
+		}
 #else
-		wrapper = "start";
+		system(std::format("wine ../bin/makegamedata.exe -r -z ../../zip0.ps3.zip {} -ps3", debugFormat ? "" : "-zipformat").c_str());
 #endif
-		system(std::format("{} ../bin/makegamedata.exe -r -z ../../zip0.ps3.zip {} -ps3", wrapper, debugFormat ? "" : "-zipformat").c_str());
 		std::filesystem::current_path(outputPath / "..");
 		std::cout << std::endl;
 
