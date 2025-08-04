@@ -18,9 +18,7 @@
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
-#include <shellapi.h>
 #endif
-
 
 namespace {
 
@@ -35,7 +33,6 @@ void openUrl(std::string_view url) {
 }
 
 } // namespace
-
 
 int main(int argc, const char* const argv[]) {
 #ifdef _WIN32
@@ -210,11 +207,13 @@ int main(int argc, const char* const argv[]) {
 
 		std::cout << "Making game zip. This will take a while..." << std::endl;
 		std::filesystem::current_path(outputPath / "portalreloaded");
-#ifdef _WIN32
-		ShellExecuteA(nullptr, "open", ("..\\bin\\makegamedata.exe", std::format("-r -z ..\\..\\zip0.ps3.zip {} -ps3", debugFormat ? "" : "-zipformat").c_str(), nullptr, SW_SHOWDEFAULT);
+		std::string wrapper;
+#ifndef _WIN32
+		wrapper = "wine";
 #else
-		system(std::format("wine ../bin/makegamedata.exe -r -z ../../zip0.ps3.zip {} -ps3", debugFormat ? "" : "-zipformat").c_str());
+		wrapper = "start";
 #endif
+		system(std::format("{} ../bin/makegamedata.exe -r -z ../../zip0.ps3.zip {} -ps3", wrapper, debugFormat ? "" : "-zipformat").c_str());
 		std::filesystem::current_path(outputPath / "..");
 		std::cout << std::endl;
 
