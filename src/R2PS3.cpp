@@ -58,6 +58,13 @@ int main(int argc, const char* const argv[]) {
 		.help("The parent directory of the generated xlsppatch directory.")
 		.store_into(output);
 
+	bool debugFormat;
+	cli
+		.add_argument("-d", "--debug")
+		.help("Make the produced zip file readable by common zip programs. Should still be loadable by the PS3.")
+		.flag()
+		.store_into(debugFormat);
+
 	cli.add_epilog("Program details:\n\n"
 		PROJECT_NAME_PRETTY " — version v" PROJECT_VERSION " — created by " PROJECT_ORGANIZATION_NAME " — licensed under MIT\n\n"
 		"Want to report a bug or request a feature? Make an issue at " PROJECT_HOMEPAGE_URL "/issues");
@@ -204,9 +211,9 @@ int main(int argc, const char* const argv[]) {
 		std::cout << "Making game zip. This will take a while..." << std::endl;
 		std::filesystem::current_path(outputPath / "portalreloaded");
 #ifdef _WIN32
-		ShellExecuteA(nullptr, "open", "..\\bin\\makegamedata.exe", "-r -z ..\\..\\zip0.ps3.zip -ps3 -zipformat", nullptr, SW_SHOWDEFAULT);
+		ShellExecuteA(nullptr, "open", ("..\\bin\\makegamedata.exe", std::format("-r -z ..\\..\\zip0.ps3.zip {} -ps3", debugFormat ? "" : "-zipformat").c_str(), nullptr, SW_SHOWDEFAULT);
 #else
-		system("wine ../bin/makegamedata.exe -r -z ../../zip0.ps3.zip -ps3 -zipformat");
+		system(std::format("wine ../bin/makegamedata.exe -r -z ../../zip0.ps3.zip {} -ps3", debugFormat ? "" : "-zipformat").c_str());
 #endif
 		std::filesystem::current_path(outputPath / "..");
 		std::cout << std::endl;
