@@ -209,7 +209,7 @@ int main(int argc, const char* const argv[]) {
 		std::cout << "Making game zip. This will take a while..." << std::endl;
 		std::filesystem::current_path(outputPath / "portalreloaded");
 #ifdef _WIN32
-		STARTUPINFOW si{};
+		STARTUPINFOA si{};
 		si.cb = sizeof(si);
 		PROCESS_INFORMATION pi{};
 		auto args = std::format("-r -z ..\\..\\zip0.ps3.zip {} -ps3", debugFormat ? "" : "-zipformat");
