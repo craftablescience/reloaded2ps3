@@ -170,6 +170,10 @@ int main(int argc, const char* const argv[]) {
 			std::cout << "Failed to extract models directory from portal2_dlc2 VPK!" << std::endl;
 			return EXIT_FAILURE;
 		}
+		if (!vpk2->extractDirectory("materials/models",  (outputPath / "portalreloaded" / "materials" / "models").string())) {
+			std::cout << "Failed to extract materials/models directory from portal2_dlc2 VPK!" << std::endl;
+			return EXIT_FAILURE;
+		}
 		if (!vpk2->extractDirectory("materials/tile",  (outputPath / "portalreloaded" / "materials" / "tile").string())) {
 			std::cout << "Failed to extract materials/tile directory from portal2_dlc2 VPK!" << std::endl;
 			return EXIT_FAILURE;
