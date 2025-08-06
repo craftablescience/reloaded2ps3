@@ -1,3 +1,4 @@
+// ReSharper disable CppRedundantQualifier
 // ReSharper disable CppUseStructuredBinding
 
 #include <cstdlib>
@@ -5,10 +6,12 @@
 #include <format>
 #include <string>
 #include <string_view>
+#include <utility>
 #include <vector>
 
 #include <argparse/argparse.hpp>
 #include <sourcepp/FS.h>
+#include <sourcepp/String.h>
 #include <steampp/steampp.h>
 #include <vpkpp/vpkpp.h>
 
@@ -31,6 +34,38 @@ void openUrl(std::string_view url) {
 #else
 	system(std::format("xdg-open {}", url).c_str());
 #endif
+}
+
+int runExecutable(std::string_view commandWindows, std::string_view commandOther, std::string args) {
+#ifdef _WIN32
+	sourcepp::string::denormalizeSlashes(args, false, false);
+	STARTUPINFOA si{};
+	si.cb = sizeof(si);
+	PROCESS_INFORMATION pi{};
+	if (!CreateProcessA(commandWindows.data(), nonconstArgs.data(), nullptr, nullptr, FALSE, 0, nullptr, nullptr, &si, &pi)) {
+		return 1;
+	}
+	WaitForSingleObject(pi.hProcess, INFINITE);
+	DWORD ec;
+	GetExitCodeProcess(pi.hProcess, &ec);
+	CloseHandle(pi.hThread);
+	CloseHandle(pi.hProcess);
+	return static_cast<int>(ec);
+#else
+	sourcepp::string::normalizeSlashes(args, false, false);
+	return system((std::string{commandOther} + ' ' + args).c_str());
+#endif
+}
+
+int runExecutable(std::string_view command, std::string args) {
+	std::string commandWindows{command};
+	sourcepp::string::denormalizeSlashes(commandWindows, false, false);
+	std::string commandOther{command};
+	sourcepp::string::normalizeSlashes(commandOther, false, false);
+	if (command.ends_with(".exe")) {
+		return ::runExecutable(commandWindows, "wineconsole " + std::string{commandOther}, std::move(args));
+	}
+	return ::runExecutable(commandWindows, commandOther, std::move(args));
 }
 
 } // namespace
@@ -212,19 +247,14 @@ int main(int argc, const char* const argv[]) {
 
 		std::cout << "Making game zip. This will take a while..." << std::endl;
 		std::filesystem::current_path(outputPath / "portalreloaded");
-#ifdef _WIN32
-		STARTUPINFOA si{};
-		si.cb = sizeof(si);
-		PROCESS_INFORMATION pi{};
-		auto args = std::format("-r -z ..\\..\\zip0.ps3.zip {} -ps3", debugFormat ? "" : "-zipformat");
-		if (CreateProcessA("..\\bin\\makegamedata.exe", args.data(), nullptr, nullptr, FALSE, 0, nullptr, (outputPath / "portalreloaded").string().c_str(), &si, &pi)) {
-			WaitForSingleObject(pi.hProcess, INFINITE);
-			CloseHandle(pi.hThread);
-			CloseHandle(pi.hProcess);
+		std::string args = "-ps3 -r -z ../../zip0.ps3.zip";
+		if (debugFormat) {
+			args += " -zipformat";
 		}
-#else
-		system(std::format("wine ../bin/makegamedata.exe -r -z ../../zip0.ps3.zip {} -ps3", debugFormat ? "" : "-zipformat").c_str());
-#endif
+		if (!::runExecutable("../bin/makegamedata.exe", args)) {
+			std::cout << "Failed to make game data!" << std::endl;
+			return EXIT_FAILURE;
+		}
 		std::filesystem::current_path(outputPath / "..");
 		std::cout << std::endl;
 
