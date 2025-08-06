@@ -30,9 +30,9 @@ void openUrl(std::string_view url) {
 #if defined(_WIN32)
 	ShellExecuteA(nullptr, nullptr, url.data(), nullptr, nullptr, SW_SHOW);
 #elif defined(__APPLE__)
-	system(std::format("open {}", url).c_str());
+	system(("open " + std::string{url}).c_str());
 #else
-	system(std::format("xdg-open {}", url).c_str());
+	system(("xdg-open " + std::string{url}).c_str());
 #endif
 }
 
