@@ -42,7 +42,7 @@ int runExecutable(std::string_view commandWindows, std::string_view commandOther
 	STARTUPINFOA si{};
 	si.cb = sizeof(si);
 	PROCESS_INFORMATION pi{};
-	if (!CreateProcessA(commandWindows.data(), nonconstArgs.data(), nullptr, nullptr, FALSE, 0, nullptr, nullptr, &si, &pi)) {
+	if (!CreateProcessA(commandWindows.data(), args.data(), nullptr, nullptr, FALSE, 0, nullptr, nullptr, &si, &pi)) {
 		return 1;
 	}
 	WaitForSingleObject(pi.hProcess, INFINITE);
