@@ -63,7 +63,7 @@ int runExecutable(std::string_view command, std::string args) {
 	std::string commandOther{command};
 	sourcepp::string::normalizeSlashes(commandOther, false, false);
 	if (command.ends_with(".exe")) {
-		return ::runExecutable(commandWindows, "wineconsole " + std::string{commandOther}, std::move(args));
+		return ::runExecutable(commandWindows, "wine " + std::string{commandOther}, std::move(args));
 	}
 	return ::runExecutable(commandWindows, commandOther, std::move(args));
 }
@@ -244,9 +244,9 @@ int main(int argc, const char* const argv[]) {
 
 		std::cout << "Making game zip. This will take a while..." << std::endl;
 		std::filesystem::current_path(outputPath / "portalreloaded");
-		std::string args = "-ps3 -r -z ../../zip0.ps3.zip";
+		std::string args = "-r -z ../../zip0.ps3.zip -ps3";
 		if (debugFormat) {
-			args += " -zipformat";
+			args = "-zipformat " + args;
 		}
 		if (!::runExecutable("../bin/makegamedata.exe", args)) {
 			std::cout << "Failed to make game data!" << std::endl;
