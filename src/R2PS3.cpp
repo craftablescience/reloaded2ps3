@@ -169,9 +169,6 @@ int main(int argc, const char* const argv[]) {
 		if (std::filesystem::exists(outputPath / "portalreloaded" / "SAVE")) {
 			std::filesystem::remove_all(outputPath / "portalreloaded" / "SAVE");
 		}
-		if (std::filesystem::exists(outputPath / "portalreloaded" / "gameinfo.txt")) {
-			std::filesystem::remove(outputPath / "portalreloaded" / "gameinfo.txt");
-		}
 		if (std::filesystem::exists(outputPath / "portalreloaded" / "steam.inf")) {
 			std::filesystem::remove(outputPath / "portalreloaded" / "steam.inf");
 		}
