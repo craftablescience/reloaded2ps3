@@ -30,7 +30,7 @@ add_executable(${PROJECT_NAME}
         "${CMAKE_CURRENT_SOURCE_DIR}/src/Config.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/R2PS3.cpp")
 cs_configure_target(${PROJECT_NAME} LOGO)
-target_link_libraries(${PROJECT_NAME} PRIVATE argparse::argparse sourcepp::bsppp sourcepp::steampp sourcepp::vpkpp sourcepp::vtfpp)
+target_link_libraries(${PROJECT_NAME} PRIVATE argparse::argparse sourcepp::steampp sourcepp::vpkpp)
 
 # copy the license
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/LICENSE" "${CMAKE_BINARY_DIR}/LICENSE" COPYONLY)
